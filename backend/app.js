@@ -132,6 +132,33 @@ app.post("/albums/:id/songs", async (req, res) => {
     }
 });
 
+app.put("/artists/:id", async (req, res) => {
+    const { id } = req.params;
+    const { name, image } = req.body;
+
+    if (!name && !image) {
+        res.status(400).json({ error: "No data provided for update" });
+        return;
+    }
+
+    try {
+        const artist = await Artist.findByPk(id);
+        if (!artist) {
+            res.status(404).json({ error: "Artist not found" });
+            return;
+        }
+
+        if (name) artist.name = name;
+        if (image) artist.image = image;
+
+        await artist.save();
+
+        res.status(200).json(artist);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.put("/albums/:id", async (req, res) => {
     const { id } = req.params;
     const { title, image, date, artist_id } = req.body;
@@ -220,6 +247,27 @@ app.delete("/albums/:id", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+
+app.delete("/artists/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const artist = await Artist.findByPk(id);
+        if (!artist) {
+            res.status(404).json({ error: "Artist not found" });
+            return;
+        }
+
+        await artist.destroy();
+        res.status(200).json({ message: "Artist successfully deleted" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 
 
 
