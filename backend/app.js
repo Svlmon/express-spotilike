@@ -48,6 +48,15 @@ app.get("/albums/:id/songs", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+app.get("/types", async (req, res) => {
+    try {
+        const type = await Type.findAll();
+        res.status(200).json(type);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.post("/users/signin", async (req, res) => {
     const {username, password, mail} = req.body
     if(!username){
@@ -147,6 +156,33 @@ app.put("/albums/:id", async (req, res) => {
         await album.save();
 
         res.status(200).json(album);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put("/types/:id", async (req, res) => {
+    const { id } = req.params;
+    const { title, description } = req.body;
+
+    if (!title && !description) {
+        res.status(400).json({ error: "No data provided for update" });
+        return;
+    }
+
+    try {
+        const type = await Type.findByPk(id);
+        if (!type) {
+            res.status(404).json({ error: "Gender not found" });
+            return;
+        }
+
+        if (title) type.title = title;
+        if (description) type.description = description;
+
+        await type.save();
+
+        res.status(200).json(type);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
