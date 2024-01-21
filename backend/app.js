@@ -56,7 +56,24 @@ app.get("/types", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+app.get("/artists/:id/songs", async (req, res) => {
+    const artist_id = req.params.id;
 
+    try {
+        const artist = await Artist.findByPk(artist_id);
+        if (!artist) {
+            return res.status(404).json({ error: "Artist not found" });
+        }
+
+        const songs = await Song.findAll({
+            where: { artist_id: artist_id }
+        });
+
+        res.status(200).json(songs);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 app.post("/users/signin", async (req, res) => {
     const {username, password, mail} = req.body
     if(!username){
@@ -71,13 +88,20 @@ app.post("/users/signin", async (req, res) => {
         res.status(400).json({error:"Mail field missing"})
         return
     }
-    const user = await User.create({
-        username,
-        password,
-        mail
-    })
-    res.status(201).json(user)
+    try{
+        const user = await User.create({
+            username,
+            password,
+            mail
+        })
+        res.status(201).json(user)
+    }catch (error){
+        res.status(500).json({ error: error.message });
+    }
+
 })
+
+// User login (Token JWT pas encore vu)
 
 app.post("/albums", async (req, res) => {
     const {title, image, date, artist_id} = req.body
@@ -97,13 +121,18 @@ app.post("/albums", async (req, res) => {
         res.status(400).json({error:"Artist_id field missing"})
         return
     }
-    const album = await Album.create({
-        title,
-        image,
-        date,
-        artist_id
-    })
-    res.status(201).json(album)
+    try{
+        const album = await Album.create({
+            title,
+            image,
+            date,
+            artist_id
+        })
+        res.status(201).json(album)
+    }catch (error){
+        res.status(500).json({ error: error.message });
+    }
+
 })
 app.post("/albums/:id/songs", async (req, res) => {
     const { id } = req.params;
