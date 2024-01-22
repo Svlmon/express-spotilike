@@ -2,6 +2,9 @@ const express = require("express")
 const {sequelize} = require("./models")
 const app = express()
 const port = 3000
+const AuthenticationService = require('./services/AuthenticationService');
+
+const authService = new AuthenticationService();
 
 const {initModels} = require("./models/init-models")
 const {User} = initModels(sequelize)
@@ -13,6 +16,7 @@ const {Song_Artist} = initModels(sequelize)
 const {Song_Album} = initModels(sequelize)
 
 app.use(express.json())
+
 app.listen(port,() => {console.log("Server is ready")})
 
 app.get("/albums", async (req, res) => {
@@ -91,9 +95,11 @@ app.post("/users/signin", async (req, res) => {
         return
     }
     try{
+        const hashedPassword = await authService.generate_hached_password(password);
+
         const user = await User.create({
             username,
-            password,
+            password: hashedPassword,
             mail
         })
         res.status(201).json(user)
@@ -103,7 +109,26 @@ app.post("/users/signin", async (req, res) => {
 
 })
 
-// User login (Token JWT pas encore vu)
+app.post("/users/login", async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const user = await User.findOne({
+            where: { username }
+        });
+
+        if (!user || !(await authService.compare_password(password, user.password))) {
+            return res.status(401).json({ error: "Invalid username or password" });
+        }
+
+        const token = authService.generate_token({user_id: user.id})
+
+        res.status(201).json({ token });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 app.post("/albums", async (req, res) => {
     const {title, image, date, artist_id} = req.body
@@ -165,7 +190,7 @@ app.post("/albums/:id/songs", async (req, res) => {
 
 app.put("/artists/:id", async (req, res) => {
     const { id } = req.params;
-    const { name, image, biographie } = req.body;
+    const { name, image,biographie } = req.body;
 
     if (!name && !image && !biographie) {
         res.status(400).json({ error: "No data provided for update" });
@@ -248,7 +273,7 @@ app.put("/types/:id", async (req, res) => {
     }
 });
 
-app.delete("/users/:id", async (req, res) => {
+app.delete("/users/:id", authService.authenticate_token.bind(authService), async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -273,7 +298,8 @@ app.delete("/users/:id", async (req, res) => {
     }
 });
 
-app.delete("/albums/:id", async (req, res) => {
+
+app.delete("/albums/:id", authService.authenticate_token,async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -301,7 +327,7 @@ app.delete("/albums/:id", async (req, res) => {
 
 
 
-app.delete("/artists/:id", async (req, res) => {
+app.delete("/artists/:id", authService.authenticate_token,async (req, res) => {
     const { id } = req.params;
 
     try {
