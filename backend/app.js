@@ -9,6 +9,8 @@ const {Album} = initModels(sequelize)
 const {Song} = initModels(sequelize)
 const {Type} = initModels(sequelize)
 const {Artist} = initModels(sequelize)
+const {Song_Artist} = initModels(sequelize)
+const {Song_Album} = initModels(sequelize)
 
 app.use(express.json())
 app.listen(port,() => {console.log("Server is ready")})
@@ -163,9 +165,9 @@ app.post("/albums/:id/songs", async (req, res) => {
 
 app.put("/artists/:id", async (req, res) => {
     const { id } = req.params;
-    const { name, image } = req.body;
+    const { name, image, biographie } = req.body;
 
-    if (!name && !image) {
+    if (!name && !image && !biographie) {
         res.status(400).json({ error: "No data provided for update" });
         return;
     }
@@ -179,6 +181,8 @@ app.put("/artists/:id", async (req, res) => {
 
         if (name) artist.name = name;
         if (image) artist.image = image;
+        if (biographie) artist.biographie = biographie;
+
 
         await artist.save();
 
@@ -254,12 +258,21 @@ app.delete("/users/:id", async (req, res) => {
             return;
         }
 
+        await Song_Artist.destroy({
+            where: { artist_id: user.id }
+        });
+
+        await Song_Album.destroy({
+            where: { song_id: user.id }
+        });
+
         await user.destroy();
-        res.status(200).json({ message: "User successfully deleted" });
+        res.status(200).json({ message: "User and associated records successfully deleted" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
 app.delete("/albums/:id", async (req, res) => {
     const { id } = req.params;
 
@@ -270,12 +283,21 @@ app.delete("/albums/:id", async (req, res) => {
             return;
         }
 
+        await Song.destroy({
+            where: { album_id: id }
+        });
+
+        await Song_Album.destroy({
+            where: { album_id: album.id }
+        });
+
         await album.destroy();
-        res.status(200).json({ message: "Album successfully deleted" });
+        res.status(200).json({ message: "Album and associated records successfully deleted" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 
 
@@ -289,12 +311,18 @@ app.delete("/artists/:id", async (req, res) => {
             return;
         }
 
+        await Song_Artist.destroy({
+            where: { artist_id: artist.id }
+        });
+
         await artist.destroy();
-        res.status(200).json({ message: "Artist successfully deleted" });
+        res.status(200).json({ message: "Artist and associated records successfully deleted" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
+
 
 
 

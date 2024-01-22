@@ -14,6 +14,10 @@ module.exports = function(sequelize, DataTypes) {
     image: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    biographie: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   }, {
     sequelize,
