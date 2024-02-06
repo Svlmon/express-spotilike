@@ -622,8 +622,10 @@ module.exports = AuthenticationService;
 
 ## Lancer l'API 
 
-`cd backend`
-`npm start`
+```
+cd backend
+npm start
+```
 
 ## Tests
 
