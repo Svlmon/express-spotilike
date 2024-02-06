@@ -39,7 +39,7 @@ Ce projet est une application backend API REST express contenant des artistes av
 
 ### Diagramme base de données 
 
-![alt text]("C:\Users\foras\Pictures\bdd.png")
+![bdd](https://github.com/Svlmon/express-spotilike/assets/93972930/0440f4b2-20ec-45b1-8458-6f29ded67f53)
 
 ### Tables
 
