@@ -25,7 +25,7 @@ Ce projet est une application backend API REST express contenant des artistes av
 
 ### Clone Repository Git
 
-`https://github.com/Svlmon/express-spotilike.git`
+```https://github.com/Svlmon/express-spotilike.git```
 
 ### Pré-Requis
 
@@ -33,7 +33,7 @@ Ce projet est une application backend API REST express contenant des artistes av
 
 ### Installation des dépendances 
 
-`npm install`
+```npm install```
 
 ## Base de données 
 
@@ -45,18 +45,21 @@ Ce projet est une application backend API REST express contenant des artistes av
 
 - Artiste
 
-`create table Artist
+```
+create table Artist
 (
     id         INTEGER
         primary key autoincrement,
     name       TEXT,
     image      TEXT,
     biographie TEXT
-);`
+);
+```
 
 - Album 
 
-`create table Album
+```
+create table Album
 (
     id        INTEGER
         primary key autoincrement,
@@ -65,22 +68,25 @@ Ce projet est une application backend API REST express contenant des artistes av
     date      DATE,
     artist_id INT
         references Artist
-);`
+);
+```
 
 - Type 
 
-`create table Type
+```
+create table Type
 (
     id          INTEGER
         primary key autoincrement,
     title       TEXT,
     description TEXT
 );
-`
+```
 
 - Song
 
-`create table Song
+```
+create table Song
 (
     id        INTEGER
         primary key autoincrement,
@@ -92,24 +98,29 @@ Ce projet est une application backend API REST express contenant des artistes av
         references Type,
     album_id  INT
         references Album
-);`
+);
+
+```
 
 - User 
 
-`create table User
+```
+create table User
 (
     id       INTEGER
         primary key autoincrement,
     username TEXT,
     password TEXT,
     mail     TEXT
-);`
+);
 
+```
 ### Tables de jointures
 
 - Song_Album 
 
-`create table Song_Album
+```
+create table Song_Album
 (
     song_id  INT
         references Song
@@ -118,11 +129,14 @@ Ce projet est une application backend API REST express contenant des artistes av
         references Album
             on delete cascade,
     primary key (song_id, album_id)
-);`
+);
+```
 
 - Song_Artist
 
-`create table Song_Artist
+```
+
+create table Song_Artist
 (
     song_id   INT
         references Song,
@@ -130,18 +144,23 @@ Ce projet est une application backend API REST express contenant des artistes av
         references Artist
             on delete cascade,
     primary key (song_id, artist_id)
-);`
+);
+
+```
 
 - Song_Type
 
-`create table Song_Type
+```
+create table Song_Type
 (
     song_id INT
         references Song,
     type_id INT
         references Type,
     primary key (song_id, type_id)
-);`
+);
+
+```
 
 ## Implémentation
 
