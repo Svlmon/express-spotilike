@@ -161,25 +161,36 @@ app.post("/albums", async (req, res) => {
 
 })
 app.post("/albums/:id/songs", async (req, res) => {
-    const { id } = req.params;
-    const { title, time, type } = req.body;
+    const { album_id } = req.params.id;
+    const { title, time,artist_id, type_id} = req.body;
 
-    if (!title || !time || !type) {
+    if (!title || !time ||!type_id) {
         res.status(400).json({ error: "Missing required fields" });
         return;
     }
 
     try {
-        const album = await Album.findByPk(id);
+        const album = await Album.findByPk(album_id);
         if (!album) {
-            res.status(404).json({ error: "Album not found" });
+            res.status(404).json({ error: 'Error album id :' + album_id});
+            return;
+        }
+        const artist = await Artist.findByPk(artist_id);
+        if (!artist){
+            res.status(409).json({error: 'Error artist id: ' + artist_id});
+            return;
+        }
+        const type = await Type.findByPk(type_id);
+        if (!type){
+            res.status(409).json({error: 'Error type id: ' + type_id});
             return;
         }
         const song = await Song.create({
             title,
             time,
-            type,
-            album_id: id
+            artist_id,
+            type_id,
+            album_id,
         });
         res.status(201).json(song);
     } catch (error) {
@@ -189,7 +200,7 @@ app.post("/albums/:id/songs", async (req, res) => {
 
 app.put("/artists/:id", async (req, res) => {
     const { id } = req.params;
-    const { name, image,biographie } = req.body;
+    const { name, image, biographie } = req.body;
 
     if (!name && !image && !biographie) {
         res.status(400).json({ error: "No data provided for update" });
@@ -257,7 +268,7 @@ app.put("/types/:id", async (req, res) => {
     try {
         const type = await Type.findByPk(id);
         if (!type) {
-            res.status(404).json({ error: "Gender not found" });
+            res.status(404).json({ error: "Type not found" });
             return;
         }
 
