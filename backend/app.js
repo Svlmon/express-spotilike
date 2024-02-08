@@ -12,8 +12,7 @@ const {Album} = initModels(sequelize)
 const {Song} = initModels(sequelize)
 const {Type} = initModels(sequelize)
 const {Artist} = initModels(sequelize)
-const {Song_Artist} = initModels(sequelize)
-const {Song_Album} = initModels(sequelize)
+
 
 app.use(express.json())
 
@@ -283,14 +282,6 @@ app.delete("/users/:id", authService.authenticate_token.bind(authService), async
             return;
         }
 
-        await Song_Artist.destroy({
-            where: { artist_id: user.id }
-        });
-
-        await Song_Album.destroy({
-            where: { song_id: user.id }
-        });
-
         await user.destroy();
         res.status(200).json({ message: "User and associated records successfully deleted" });
     } catch (error) {
@@ -299,7 +290,7 @@ app.delete("/users/:id", authService.authenticate_token.bind(authService), async
 });
 
 
-app.delete("/albums/:id", authService.authenticate_token,async (req, res) => {
+app.delete("/albums/:id", authService.authenticate_token.bind(authService),async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -313,9 +304,7 @@ app.delete("/albums/:id", authService.authenticate_token,async (req, res) => {
             where: { album_id: id }
         });
 
-        await Song_Album.destroy({
-            where: { album_id: album.id }
-        });
+
 
         await album.destroy();
         res.status(200).json({ message: "Album and associated records successfully deleted" });
@@ -327,7 +316,7 @@ app.delete("/albums/:id", authService.authenticate_token,async (req, res) => {
 
 
 
-app.delete("/artists/:id", authService.authenticate_token,async (req, res) => {
+app.delete("/artists/:id", authService.authenticate_token.bind(authService),async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -337,11 +326,19 @@ app.delete("/artists/:id", authService.authenticate_token,async (req, res) => {
             return;
         }
 
-        await Song_Artist.destroy({
-            where: { artist_id: artist.id }
+        await Song.destroy({
+            where: {
+                artist_id: artist.id
+            }
         });
-
+        await Album.destroy({
+            where: {
+                artist_id: artist.id
+            }
+        });
         await artist.destroy();
+
+
         res.status(200).json({ message: "Artist and associated records successfully deleted" });
     } catch (error) {
         res.status(500).json({ error: error.message });
